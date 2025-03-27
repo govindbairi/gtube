@@ -1,7 +1,8 @@
+import os
+import uvicorn
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-import os
 import yt_dlp
 
 app = FastAPI()
@@ -49,6 +50,7 @@ async def get_file(filename: str):
         return FileResponse(file_path, filename=filename, media_type="video/mp4")
     return {"status": "error", "message": "File not found"}
 
+# Render assigns a dynamic port, so we use it
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    port = int(os.environ.get("PORT", 10000))  # Use Render's assigned port
+    uvicorn.run(app, host="0.0.0.0", port=port)
