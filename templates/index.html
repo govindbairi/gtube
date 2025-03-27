@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube to MP4 Converter</title>
+    <link rel="stylesheet" href="Gtuber.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="Tuber.png" alt="Gtuber">
+        </div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">YouTube to MP4</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="converter-section">
+            <h2>YouTube to MP4</h2>
+            <div class="input-container">
+                <input type="text" id="videoLink" placeholder="Paste YouTube URL Here...">
+                <button onclick="downloadVideo()">Download</button>
+            </div>
+            <p id="status"></p>
+            <a id="downloadLink" style="display: none;" download>Download Video</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>Terms of use | Privacy Policy | Contact Us: 9491496815</p>
+        <p>Copyright © 2024 Gtuber.media</p>
+    </footer>
+
+    <script>
+        async function downloadVideo() {
+            let videoLink = document.getElementById("videoLink").value;
+            let statusText = document.getElementById("status");
+            let downloadLink = document.getElementById("downloadLink");
+
+            if (!videoLink.trim()) {
+                alert("Please enter a valid YouTube URL");
+                return;
+            }
+
+            statusText.textContent = "Downloading... Please wait.";
+            downloadLink.style.display = "none";
+
+            let formData = new FormData();
+            formData.append("link", videoLink);
+
+            try {
+                let response = await fetch("http://127.0.0.1:8000/download", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let result = await response.json();
+                
+                if (result.status === "Download complete") {
+                    statusText.textContent = "Download completed!";
+                    downloadLink.href = `downloads/${result.filename}`;
+                    downloadLink.textContent = "Click here to download";
+                    downloadLink.style.display = "block";
+                } else {
+                    statusText.textContent = "Error: " + result.message;
+                }
+            } catch (error) {
+                statusText.textContent = "Failed to connect to the server.";
+            }
+        }
+    </script>
+
+</body>
+</html>
