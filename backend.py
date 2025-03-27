@@ -3,6 +3,7 @@ import uvicorn
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+
 import yt_dlp
 
 app = FastAPI()
@@ -15,9 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Directory to store downloads
+# Directory for storing downloads
 DOWNLOADS_DIR = os.path.join(os.getcwd(), "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+
+# ✅ Add a root endpoint to confirm the service is running
+@app.get("/")
+async def root():
+    return {"message": "FastAPI YouTube Downloader is running!"}
 
 @app.post("/download")
 async def download_video(link: str = Form(...)):
@@ -42,7 +48,6 @@ async def download_video(link: str = Form(...)):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-# Serve downloaded files
 @app.get("/files/{filename}")
 async def get_file(filename: str):
     file_path = os.path.join(DOWNLOADS_DIR, filename)
@@ -50,7 +55,7 @@ async def get_file(filename: str):
         return FileResponse(file_path, filename=filename, media_type="video/mp4")
     return {"status": "error", "message": "File not found"}
 
-# Render assigns a dynamic port, so we use it
+# ✅ Get PORT from environment variable for Render
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Use Render's assigned port
+    port = int(os.environ.get("PORT", 10000))  # Render provides a dynamic port
     uvicorn.run(app, host="0.0.0.0", port=port)
